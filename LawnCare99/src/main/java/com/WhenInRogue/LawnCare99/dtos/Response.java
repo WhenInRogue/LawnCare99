@@ -29,6 +29,9 @@ public class Response {
     private UserDTO user;
     private List<UserDTO> users;
 
+    private SupplyDTO supply;
+    private List<SupplyDTO> supplies;
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 
 

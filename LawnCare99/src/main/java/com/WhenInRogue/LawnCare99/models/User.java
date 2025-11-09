@@ -12,10 +12,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+
+// @AllArgsConstructor as the name suggests, generates a constructor that includes a parameter for every field in the class,
+// regardless of whether those fields are declared as final or not.
 @AllArgsConstructor
+
+//@NoArgsConstructor will generate a constructor with no parameters.
+// If this is not possible (because of final fields), a compiler error will result instead
 @NoArgsConstructor
 @Table(name = "users")
+
+//@Data annotation is a shortcut that bundles several other Lombok annotations
+//such as @Getters, @Setters, @ToString, etc.
 @Data
+
+//@Builder avoids this ugly boilerplate code -->  New Person person(); person.setfirstname ="your first name";
 @Builder
 public class User {
 
