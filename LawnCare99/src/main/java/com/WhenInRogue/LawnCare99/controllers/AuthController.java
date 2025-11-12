@@ -19,6 +19,7 @@ public class AuthController {
 
     private final UserService userService;
 
+    //change to Admin Access level
     @PostMapping("/register")
     public ResponseEntity<Response> registerUser(@RequestBody @Valid RegisterRequest registerRequest) {
         return ResponseEntity.ok(userService.registerUser(registerRequest));

@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/supplies")
 @RequiredArgsConstructor
 public class SupplyController {
 
@@ -18,7 +18,7 @@ public class SupplyController {
 
     @PostMapping("/add")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> addSupply(@RequestBody @Valid SupplyDTO supplyDTO) {
+    public ResponseEntity<Response> createSupply(@RequestBody @Valid SupplyDTO supplyDTO) {
         return ResponseEntity.ok(supplyService.createSupply(supplyDTO));
     }
 
