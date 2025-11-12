@@ -40,8 +40,8 @@ public class SupplyServiceImpl implements SupplyService {
 
     @Override
     public Response getAllSupplies() {
-                                                                                                //supplyId or id?
-        List<Supply> supplies = supplyRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+                                                                                                //supplyId or id? <--fixed
+        List<Supply> supplies = supplyRepository.findAll(Sort.by(Sort.Direction.DESC, "supplyId"));
 
         List<SupplyDTO> SupplyDTOList = modelMapper.map(supplies, new TypeToken<List<SupplyDTO>>() {
         }.getType());
@@ -55,7 +55,7 @@ public class SupplyServiceImpl implements SupplyService {
 
     @Override
     public Response getSupplyById(Long id) {
-                                                //Does this need to be supplyId?
+                                                //Does this need to be supplyId? <-- answer no
         Supply supply = supplyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Supply not found"));
 
@@ -74,7 +74,14 @@ public class SupplyServiceImpl implements SupplyService {
         Supply existingSupply = supplyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Supply not found"));
 
-        existingSupply.setName(supplyDTO.getName());
+        if (supplyDTO.getName() != null) existingSupply.setName(supplyDTO.getName());
+        if (supplyDTO.getUnitOfMeasurement() != null) existingSupply.setUnitOfMeasurement(supplyDTO.getUnitOfMeasurement());
+        if (supplyDTO.getCurrentStock() != null) existingSupply.setCurrentStock(supplyDTO.getCurrentStock());
+        if (supplyDTO.getReorderLevel() != null) existingSupply.setReorderLevel(supplyDTO.getReorderLevel());
+        if (supplyDTO.getMaximumQuantity() != null) existingSupply.setMaximumQuantity(supplyDTO.getMaximumQuantity());
+        if (supplyDTO.getDescription() != null) existingSupply.setDescription(supplyDTO.getDescription());
+
+        supplyRepository.save(existingSupply);
 
         return Response.builder()
                 .status(200)
