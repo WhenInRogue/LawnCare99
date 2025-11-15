@@ -54,6 +54,9 @@ public class User {
     @Column(name = "created_at")
     private final LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToMany(mappedBy = "user")
+    private List<SupplyTransaction> supplyTransactions;
+
     @Override
     public String toString() {
         return "User{" +

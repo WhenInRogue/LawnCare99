@@ -32,6 +32,9 @@ public class Response {
     private SupplyDTO supply;
     private List<SupplyDTO> supplies;
 
+    private SupplyTransactionDTO supplyTransaction;
+    private List<SupplyTransactionDTO> supplyTransactions;
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 
 

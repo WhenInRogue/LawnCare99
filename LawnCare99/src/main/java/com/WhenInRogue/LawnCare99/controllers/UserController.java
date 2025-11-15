@@ -44,5 +44,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentLoggedInUser());
     }
 
+    //check if link is correct
+    @GetMapping("/supplyTransactions/{userId}")
+    public ResponseEntity<Response> getUserAndSupplyTransactions(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.getUserSupplyTransactions(userId));
+    }
+
 
 }

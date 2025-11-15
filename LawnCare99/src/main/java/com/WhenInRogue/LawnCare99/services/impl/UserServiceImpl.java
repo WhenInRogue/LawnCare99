@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> users = userRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
+        users.forEach(user -> user.setSupplyTransactions(null));
 
         List<UserDTO> userDTOS = modelMapper.map(users, new TypeToken<List<UserDTO>>() {
         }.getType());
@@ -103,6 +104,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User Not Found"));
 
+        user.setSupplyTransactions(null);
 
         return user;
     }
@@ -114,6 +116,7 @@ public class UserServiceImpl implements UserService {
 
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
+        userDTO.setSupplyTransactions(null);
 
         return Response.builder()
                 .status(200)
@@ -154,6 +157,24 @@ public class UserServiceImpl implements UserService {
                 .message("User successfully Deleted")
                 .build();
 
+    }
+
+    @Override
+    public Response getUserSupplyTransactions(Long id) {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        userDTO.getSupplyTransactions().forEach(supplyTransactionDTO -> {
+            supplyTransactionDTO.setUser(null);
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .user(userDTO)
+                .build();
     }
 
 }
