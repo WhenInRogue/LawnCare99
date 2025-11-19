@@ -45,7 +45,7 @@ public class SupplyTransactionFilter {
             }
 
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.join("supply", JoinType.LEFT).get("name")), searchPattern));
-            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.join("supply", JoinType.LEFT).get("unit_of_measurement")), searchPattern)); //potential flaw
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.join("supply", JoinType.LEFT).get("unitOfMeasurement")), searchPattern)); //potential flaw
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.join("supply", JoinType.LEFT).get("description")), searchPattern));
 
             // Combine all predicates with OR

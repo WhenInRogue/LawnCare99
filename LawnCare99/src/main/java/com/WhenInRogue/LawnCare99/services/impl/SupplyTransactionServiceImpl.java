@@ -103,7 +103,7 @@ public class SupplyTransactionServiceImpl implements SupplyTransactionService {
     @Override
     public Response getAllSupplyTransactions(int page, int size, String filter) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "supplyTransactionId"));
 
         //user the Transaction specification
         Specification<SupplyTransaction> spec = SupplyTransactionFilter.byFilter(filter);
