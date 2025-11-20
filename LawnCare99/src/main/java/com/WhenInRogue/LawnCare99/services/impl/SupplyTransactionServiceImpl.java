@@ -47,9 +47,33 @@ public class SupplyTransactionServiceImpl implements SupplyTransactionService {
 
         User user = userService.getCurrentLoggedInUser();
 
-        //update stock quantity and re-save
-        supply.setCurrentStock(supply.getCurrentStock() + quantity);
-        supplyRepository.save(supply);
+        // validate quantity
+        if (quantity == null || quantity <= 0) {
+            return Response.builder()
+                    .status(400)
+                    .message("Quantity must be greater than 0")
+                    .build();
+        }
+
+        // ensure currentStock and maximumQuantity are not null (defensive; maximumQuantity is @NotNull on entity)
+        int current = (supply.getCurrentStock() == null) ? 0 : supply.getCurrentStock();
+        Integer maxQty = supply.getMaximumQuantity();
+        if (maxQty == null) {
+            // fallback — if max not set, allow the check-in (or you could treat this as an error)
+            supply.setCurrentStock(current + quantity);
+            supplyRepository.save(supply);
+        } else {
+            long newStock = (long) current + (long) quantity; // use long to avoid overflow
+            if (newStock > maxQty) {
+                return Response.builder()
+                        .status(400)
+                        .message("Check-in would exceed maximum quantity. Available space: " + (maxQty - current))
+                        .build();
+            }
+            // safe to update stock quantity and resave
+            supply.setCurrentStock(current + quantity);
+            supplyRepository.save(supply);
+        }
 
 
         //create a supply transaction
@@ -79,7 +103,22 @@ public class SupplyTransactionServiceImpl implements SupplyTransactionService {
 
         User user = userService.getCurrentLoggedInUser();
 
-        //update stock quantity and re-save
+        // guard: prevent negative stock
+        if (quantity == null || quantity <= 0) {
+            return Response.builder()
+                    .status(400)
+                    .message("Quantity must be greater than 0")
+                    .build();
+        }
+
+        if (supply.getCurrentStock() == null || quantity > supply.getCurrentStock()) {
+            return Response.builder()
+                    .status(400)
+                    .message("Insufficient stock")
+                    .build();
+        }
+
+        //safe to update stock quantity and re-save
         supply.setCurrentStock(supply.getCurrentStock() - quantity);
         supplyRepository.save(supply);
 
