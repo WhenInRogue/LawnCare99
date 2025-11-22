@@ -38,6 +38,9 @@ public class Response {
     private EquipmentDTO equipment;
     private List<EquipmentDTO> equipments;
 
+    private EquipmentTransactionDTO equipmentTransaction;
+    private List<EquipmentTransactionDTO> equipmentTransactions;
+
     private final LocalDateTime timestamp = LocalDateTime.now();
 
 

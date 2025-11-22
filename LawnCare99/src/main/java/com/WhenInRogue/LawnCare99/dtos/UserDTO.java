@@ -34,4 +34,6 @@ public class UserDTO {
     private LocalDateTime createdAt;
 
     private List<SupplyTransactionDTO> supplyTransactions;
+
+    private List<EquipmentTransactionDTO> equipmentTransactions;
 }

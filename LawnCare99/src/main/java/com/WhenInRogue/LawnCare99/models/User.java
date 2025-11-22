@@ -57,6 +57,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<SupplyTransaction> supplyTransactions;
 
+    @OneToMany(mappedBy = "user")
+    private List<EquipmentTransaction> equipmentTransactions;
+
     @Override
     public String toString() {
         return "User{" +
