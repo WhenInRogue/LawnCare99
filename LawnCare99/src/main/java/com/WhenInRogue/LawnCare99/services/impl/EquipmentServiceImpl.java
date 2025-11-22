@@ -2,6 +2,7 @@ package com.WhenInRogue.LawnCare99.services.impl;
 
 import com.WhenInRogue.LawnCare99.dtos.EquipmentDTO;
 import com.WhenInRogue.LawnCare99.dtos.Response;
+import com.WhenInRogue.LawnCare99.enums.EquipmentStatus;
 import com.WhenInRogue.LawnCare99.exceptions.NotFoundException;
 import com.WhenInRogue.LawnCare99.models.Equipment;
 import com.WhenInRogue.LawnCare99.repositories.EquipmentRepository;
@@ -27,6 +28,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     public Response createEquipment(EquipmentDTO equipmentDTO) {
 
         Equipment equipmentToSave = modelMapper.map(equipmentDTO, Equipment.class);
+
+        // Force newly created equipment to be AVAILABLE regardless of DTO contents
+        equipmentToSave.setEquipmentStatus(EquipmentStatus.AVAILABLE);
 
         equipmentRepository.save(equipmentToSave);
 
