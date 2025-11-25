@@ -3,20 +3,17 @@ package com.WhenInRogue.LawnCare99.services.impl;
 import com.WhenInRogue.LawnCare99.dtos.EquipmentTransactionDTO;
 import com.WhenInRogue.LawnCare99.dtos.EquipmentTransactionRequest;
 import com.WhenInRogue.LawnCare99.dtos.Response;
-import com.WhenInRogue.LawnCare99.dtos.SupplyTransactionDTO;
 import com.WhenInRogue.LawnCare99.enums.EquipmentStatus;
 import com.WhenInRogue.LawnCare99.enums.EquipmentTransactionType;
 import com.WhenInRogue.LawnCare99.exceptions.NotFoundException;
 import com.WhenInRogue.LawnCare99.models.Equipment;
 import com.WhenInRogue.LawnCare99.models.EquipmentTransaction;
-import com.WhenInRogue.LawnCare99.models.SupplyTransaction;
 import com.WhenInRogue.LawnCare99.models.User;
 import com.WhenInRogue.LawnCare99.repositories.EquipmentRepository;
 import com.WhenInRogue.LawnCare99.repositories.EquipmentTransactionRepository;
 import com.WhenInRogue.LawnCare99.services.EquipmentTransactionService;
 import com.WhenInRogue.LawnCare99.services.UserService;
 import com.WhenInRogue.LawnCare99.specification.EquipmentTransactionFilter;
-import com.WhenInRogue.LawnCare99.specification.SupplyTransactionFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -46,6 +43,8 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
     public Response checkInEquipment(EquipmentTransactionRequest equipmentTransactionRequest) {
 
         Long equipmentId = equipmentTransactionRequest.getEquipmentId();
+        Double totalHoursInput = equipmentTransactionRequest.getTotalHoursInput();
+
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new NotFoundException("Equipment Not Found"));
 
@@ -59,24 +58,23 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                     .build();
         }
 
-        if (equipment.getLastCheckOutTime() == null) {
-            return Response.builder()
-                    .status(500)
-                    .message("Error: Last check-out time missing.")
-                    .build();
-        }
+        //Find the most recent Check out transaction
+        EquipmentTransaction lastCheckout = equipmentTransactionRepository
+                .findTopByEquipment_EquipmentIdAndEquipmentTransactionTypeOrderByTimestampDesc(
+                        equipmentId, EquipmentTransactionType.CHECK_OUT)
+                .orElseThrow(() -> new RuntimeException("No checkout record found."));
 
         // CALCULATE HOURS -------------------------------
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(equipment.getLastCheckOutTime(), now);
-        double hoursLogged = duration.toMinutes() / 60.0;
+        double hoursUsed = totalHoursInput - lastCheckout.getTotalHoursInput();
+        if (hoursUsed < 0) hoursUsed = 0;
 
         // UPDATE TOTAL HOURS ----------------------------
-        double previousHours = equipment.getTotalHours() == null ? 0.0 : equipment.getTotalHours();
-        equipment.setTotalHours(previousHours + hoursLogged);
+        double previousTotalHours = equipment.getTotalHours() == null ? 0.0 : equipment.getTotalHours();
+        double newTotalHours = previousTotalHours + hoursUsed;
+        equipment.setTotalHours(newTotalHours);
 
-        equipment.setLastCheckOutTime(null);
         equipment.setEquipmentStatus(EquipmentStatus.AVAILABLE);
+        equipment.setLastCheckOutTime(null);
         equipmentRepository.save(equipment);
 
         // LOG TRANSACTION -------------------------------
@@ -84,8 +82,9 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                 .equipment(equipment)
                 .user(user)
                 .equipmentTransactionType(EquipmentTransactionType.CHECK_IN)
-                .timestamp(now)
-                .hoursLogged(hoursLogged)
+                .timestamp(LocalDateTime.now())
+                .totalHoursInput(equipmentTransactionRequest.getTotalHoursInput())
+                .hoursLogged(hoursUsed)
                 .note(equipmentTransactionRequest.getNote())
                 .build();
 
@@ -133,7 +132,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                 .user(user)
                 .equipmentTransactionType(EquipmentTransactionType.CHECK_OUT)
                 .timestamp(LocalDateTime.now())
-                .hoursLogged(null) // not yet
+                .totalHoursInput(equipmentTransactionRequest.getTotalHoursInput())
                 .note(equipmentTransactionRequest.getNote())
                 .build();
 

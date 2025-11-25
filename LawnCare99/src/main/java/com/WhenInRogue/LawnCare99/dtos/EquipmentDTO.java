@@ -26,5 +26,16 @@ public class EquipmentDTO {
 
     private LocalDateTime lastCheckOutTime;
 
+    private Double maintenanceIntervalHours;
+
     private String description;
+
+    private Boolean maintenanceDue;
+
+    public Boolean getMaintenanceDue() {
+        if (totalHours == null || maintenanceIntervalHours == null) {
+            return false;
+        }
+        return totalHours >= maintenanceIntervalHours;
+    }
 }

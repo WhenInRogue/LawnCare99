@@ -60,6 +60,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<EquipmentTransaction> equipmentTransactions;
 
+    @OneToMany(mappedBy = "user")
+    private List<MaintenanceRecord> maintenanceRecords;
+
     @Override
     public String toString() {
         return "User{" +

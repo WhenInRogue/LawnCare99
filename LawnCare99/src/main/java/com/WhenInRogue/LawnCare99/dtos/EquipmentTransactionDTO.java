@@ -21,7 +21,6 @@ public class EquipmentTransactionDTO {
 
     private Long equipmentTransactionId;
 
-    //Used only in Check-in
     private Double hoursLogged;
 
     private String note;
@@ -29,6 +28,8 @@ public class EquipmentTransactionDTO {
     private EquipmentTransactionType equipmentTransactionType;
 
     private LocalDateTime timestamp = LocalDateTime.now();
+
+    private Double totalHoursInput;
 
     private Equipment equipment;
     private User user;

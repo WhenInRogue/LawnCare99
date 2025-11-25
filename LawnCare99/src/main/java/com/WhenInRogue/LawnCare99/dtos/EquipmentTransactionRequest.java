@@ -15,5 +15,7 @@ public class EquipmentTransactionRequest {
     @Positive(message = "equipment id is required")
     private Long equipmentId;
 
+    private Double totalHoursInput;
+
     private String note;
 }
