@@ -1,8 +1,6 @@
 package com.WhenInRogue.LawnCare99.dtos;
 
 import com.WhenInRogue.LawnCare99.enums.EquipmentTransactionType;
-import com.WhenInRogue.LawnCare99.models.Equipment;
-import com.WhenInRogue.LawnCare99.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
@@ -31,6 +29,6 @@ public class EquipmentTransactionDTO {
 
     private Double totalHoursInput;
 
-    private Equipment equipment;
-    private User user;
+    private EquipmentDTO equipment;
+    private UserDTO user;
 }
