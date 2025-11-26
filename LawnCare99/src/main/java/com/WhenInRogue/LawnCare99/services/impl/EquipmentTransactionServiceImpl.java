@@ -73,9 +73,8 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
 
         Double lastCheckoutReading = lastCheckout.getTotalHoursInput();
         if (lastCheckoutReading == null) {
-            log.warn("Checkout transaction {} has no totalHoursInput recorded. Defaulting hoursUsed to 0.",
-                    lastCheckout.getEquipmentTransactionId());
-            lastCheckoutReading = totalHoursInput;
+            log.error("Checkout transaction {} has no totalHoursInput recorded.", lastCheckout.getEquipmentTransactionId());
+            throw new IllegalStateException("The most recent checkout does not have a total-hours reading.");
         }
 
         // CALCULATE HOURS -------------------------------
