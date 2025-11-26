@@ -178,6 +178,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
         EquipmentTransactionDTO equipmentTransactionDTO = modelMapper.map(equipmentTransaction, EquipmentTransactionDTO.class);
 
         equipmentTransactionDTO.getUser().setEquipmentTransactions(null);
+        equipmentTransactionDTO.getUser().setSupplyTransactions(null);
 
         return Response.builder()
                 .status(200)

@@ -85,6 +85,7 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
         users.forEach(user -> user.setSupplyTransactions(null));
+        users.forEach(user -> user.setEquipmentTransactions(null));
 
         List<UserDTO> userDTOS = modelMapper.map(users, new TypeToken<List<UserDTO>>() {
         }.getType());
@@ -105,6 +106,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User Not Found"));
 
         user.setSupplyTransactions(null);
+        user.setEquipmentTransactions(null);
 
         return user;
     }
@@ -117,6 +119,7 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
         userDTO.setSupplyTransactions(null);
+        userDTO.setEquipmentTransactions(null);
 
         return Response.builder()
                 .status(200)
@@ -177,4 +180,22 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public Response getUserEquipmentTransactions(Long id) {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        userDTO.getEquipmentTransactions().forEach(equipmentTransactionDTO -> {
+            equipmentTransactionDTO.setUser(null);
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .user(userDTO)
+                .build();
+
+    }
 }

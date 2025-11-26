@@ -23,4 +23,6 @@ public interface UserService {
 
     Response getUserSupplyTransactions(Long id);
 
+    Response getUserEquipmentTransactions(Long id);
+
 }

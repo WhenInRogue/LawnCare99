@@ -50,5 +50,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserSupplyTransactions(userId));
     }
 
+    @GetMapping("/equipmentTransactions/{userId}")
+    public ResponseEntity<Response> getUserAndEquipmentTransactions(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.getUserEquipmentTransactions(userId));
+    }
+
 
 }

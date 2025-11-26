@@ -173,6 +173,7 @@ public class SupplyTransactionServiceImpl implements SupplyTransactionService {
         SupplyTransactionDTO supplyTransactionDTO = modelMapper.map(supplyTransaction, SupplyTransactionDTO.class);
 
         supplyTransactionDTO.getUser().setSupplyTransactions(null);
+        supplyTransactionDTO.getUser().setEquipmentTransactions(null);
 
         return Response.builder()
                 .status(200)
