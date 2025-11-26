@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -42,6 +43,9 @@ public class Supply {
 
 
     private String description;
+
+    @OneToMany(mappedBy = "supply", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<SupplyTransaction> supplyTransactions;
 
 
     @Override

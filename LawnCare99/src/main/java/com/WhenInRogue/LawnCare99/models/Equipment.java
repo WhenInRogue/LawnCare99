@@ -48,6 +48,9 @@ public class Equipment {
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenanceRecord> maintenanceRecords;
 
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<EquipmentTransaction> equipmentTransactions;
+
     /**
      * ❗ Derived field – NOT stored in DB
      *

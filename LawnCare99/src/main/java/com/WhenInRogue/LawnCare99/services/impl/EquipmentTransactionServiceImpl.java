@@ -58,11 +58,28 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                     .build();
         }
 
+        if (totalHoursInput == null) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input is required to check in equipment.")
+                    .build();
+        }
+
         //Find the most recent Check out transaction
         EquipmentTransaction lastCheckout = equipmentTransactionRepository
                 .findTopByEquipment_EquipmentIdAndEquipmentTransactionTypeOrderByTimestampDesc(
                         equipmentId, EquipmentTransactionType.CHECK_OUT)
                 .orElseThrow(() -> new RuntimeException("No checkout record found."));
+
+        // Prevent rollback: check-in reading must be >= checkout reading
+        double lastCheckoutHours = lastCheckout.getTotalHoursInput();
+        if (totalHoursInput < lastCheckoutHours) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input cannot be less than the last checkout reading ("
+                            + lastCheckoutHours + ").")
+                    .build();
+        }
 
         // CALCULATE HOURS -------------------------------
         double hoursUsed = totalHoursInput - lastCheckout.getTotalHoursInput();
@@ -118,6 +135,17 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
             return Response.builder()
                     .status(400)
                     .message("Equipment is already checked out.")
+                    .build();
+        }
+
+        // Prevent hour meter rollback
+        double previousTotalHours = equipment.getTotalHours() == null ? 0.0 : equipment.getTotalHours();
+
+        if ((equipmentTransactionRequest.getTotalHoursInput()) < previousTotalHours) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input cannot be less than the equipment's current recorded hours ("
+                            + previousTotalHours + ").")
                     .build();
         }
 
