@@ -45,6 +45,13 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
         Long equipmentId = equipmentTransactionRequest.getEquipmentId();
         Double totalHoursInput = equipmentTransactionRequest.getTotalHoursInput();
 
+        if (totalHoursInput == null) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input is required to check in equipment.")
+                    .build();
+        }
+
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new NotFoundException("Equipment Not Found"));
 
@@ -64,8 +71,15 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                         equipmentId, EquipmentTransactionType.CHECK_OUT)
                 .orElseThrow(() -> new RuntimeException("No checkout record found."));
 
+        Double lastCheckoutReading = lastCheckout.getTotalHoursInput();
+        if (lastCheckoutReading == null) {
+            log.warn("Checkout transaction {} has no totalHoursInput recorded. Defaulting hoursUsed to 0.",
+                    lastCheckout.getEquipmentTransactionId());
+            lastCheckoutReading = totalHoursInput;
+        }
+
         // CALCULATE HOURS -------------------------------
-        double hoursUsed = totalHoursInput - lastCheckout.getTotalHoursInput();
+        double hoursUsed = totalHoursInput - lastCheckoutReading;
         if (hoursUsed < 0) hoursUsed = 0;
 
         // UPDATE TOTAL HOURS ----------------------------
@@ -100,6 +114,14 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
     public Response checkOutEquipment(EquipmentTransactionRequest equipmentTransactionRequest) {
 
         Long equipmentId = equipmentTransactionRequest.getEquipmentId();
+        Double totalHoursInput = equipmentTransactionRequest.getTotalHoursInput();
+
+        if (totalHoursInput == null) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input is required to check out equipment.")
+                    .build();
+        }
 
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new NotFoundException("Equipment Not Found"));
@@ -132,7 +154,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                 .user(user)
                 .equipmentTransactionType(EquipmentTransactionType.CHECK_OUT)
                 .timestamp(LocalDateTime.now())
-                .totalHoursInput(equipmentTransactionRequest.getTotalHoursInput())
+                .totalHoursInput(totalHoursInput)
                 .note(equipmentTransactionRequest.getNote())
                 .build();
 
