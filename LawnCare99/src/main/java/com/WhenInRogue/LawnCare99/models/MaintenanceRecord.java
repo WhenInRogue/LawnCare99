@@ -24,6 +24,10 @@ public class MaintenanceRecord {
 
     private String note;
 
+    @Column(name = "total_hours_at_maintenance")
+    private Double totalHoursAtMaintenance;
+
+    @Builder.Default
     private LocalDateTime performedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)

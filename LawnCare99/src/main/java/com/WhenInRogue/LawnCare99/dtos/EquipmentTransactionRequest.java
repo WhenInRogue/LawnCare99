@@ -18,4 +18,6 @@ public class EquipmentTransactionRequest {
     private Double totalHoursInput;
 
     private String note;
+
+    private String maintenancePerformed;
 }

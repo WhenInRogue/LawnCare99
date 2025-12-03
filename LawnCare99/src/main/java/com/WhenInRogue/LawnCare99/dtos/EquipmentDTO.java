@@ -32,10 +32,17 @@ public class EquipmentDTO {
 
     private Boolean maintenanceDue;
 
+    private Double lastMaintenanceHours;
+
     public Boolean getMaintenanceDue() {
-        if (totalHours == null || maintenanceIntervalHours == null) {
-            return false;
-        }
-        return totalHours >= maintenanceIntervalHours;
+        if (totalHours == null) return false;
+        Double nextDueHours = getNextMaintenanceDueHours();
+        return nextDueHours != null && totalHours >= nextDueHours;
+    }
+
+    public Double getNextMaintenanceDueHours() {
+        if (maintenanceIntervalHours == null) return null;
+        double lastMaintenance = lastMaintenanceHours == null ? 0.0 : lastMaintenanceHours;
+        return lastMaintenance + maintenanceIntervalHours;
     }
 }

@@ -8,9 +8,11 @@ import com.WhenInRogue.LawnCare99.enums.EquipmentTransactionType;
 import com.WhenInRogue.LawnCare99.exceptions.NotFoundException;
 import com.WhenInRogue.LawnCare99.models.Equipment;
 import com.WhenInRogue.LawnCare99.models.EquipmentTransaction;
+import com.WhenInRogue.LawnCare99.models.MaintenanceRecord;
 import com.WhenInRogue.LawnCare99.models.User;
 import com.WhenInRogue.LawnCare99.repositories.EquipmentRepository;
 import com.WhenInRogue.LawnCare99.repositories.EquipmentTransactionRepository;
+import com.WhenInRogue.LawnCare99.repositories.MaintenanceRecordRepository;
 import com.WhenInRogue.LawnCare99.services.EquipmentTransactionService;
 import com.WhenInRogue.LawnCare99.services.UserService;
 import com.WhenInRogue.LawnCare99.specification.EquipmentTransactionFilter;
@@ -25,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
 
     private final EquipmentTransactionRepository equipmentTransactionRepository;
     private final EquipmentRepository equipmentRepository;
+    private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final UserService userService;
     private final ModelMapper modelMapper;
 
@@ -236,12 +238,142 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
 
     @Override
     public Response startMaintenance(EquipmentTransactionRequest equipmentTransactionRequest) {
-        return null;
+        Long equipmentId = equipmentTransactionRequest.getEquipmentId();
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new NotFoundException("Equipment Not Found"));
+
+        if (equipment.getEquipmentStatus() == EquipmentStatus.MAINTENANCE) {
+            return Response.builder()
+                    .status(400)
+                    .message("Equipment is already under maintenance.")
+                    .build();
+        }
+
+        if (equipment.getEquipmentStatus() == EquipmentStatus.IN_USE) {
+            return Response.builder()
+                    .status(400)
+                    .message("Equipment must be checked in before maintenance can start.")
+                    .build();
+        }
+
+        Double providedHours = equipmentTransactionRequest.getTotalHoursInput();
+        if (providedHours != null) {
+            double currentHours = equipment.getTotalHours() == null ? 0.0 : equipment.getTotalHours();
+            if (providedHours < currentHours) {
+                return Response.builder()
+                        .status(400)
+                        .message("Total hours input cannot be less than the equipment's current recorded hours (" + currentHours + ").")
+                        .build();
+            }
+            equipment.setTotalHours(providedHours);
+        }
+
+        equipment.setEquipmentStatus(EquipmentStatus.MAINTENANCE);
+        equipment.setLastCheckOutTime(null);
+        equipmentRepository.save(equipment);
+
+        User user = userService.getCurrentLoggedInUser();
+        EquipmentTransaction equipmentTransaction = EquipmentTransaction.builder()
+                .equipment(equipment)
+                .user(user)
+                .equipmentTransactionType(EquipmentTransactionType.MAINTENANCE)
+                .timestamp(LocalDateTime.now())
+                .totalHoursInput(providedHours)
+                .note(equipmentTransactionRequest.getNote())
+                .build();
+        equipmentTransactionRepository.save(equipmentTransaction);
+
+        return Response.builder()
+                .status(200)
+                .message("Maintenance started successfully.")
+                .build();
     }
 
     @Override
     public Response endMaintenance(EquipmentTransactionRequest equipmentTransactionRequest) {
-        return null;
+        Long equipmentId = equipmentTransactionRequest.getEquipmentId();
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new NotFoundException("Equipment Not Found"));
+
+        if (equipment.getEquipmentStatus() != EquipmentStatus.MAINTENANCE) {
+            return Response.builder()
+                    .status(400)
+                    .message("Equipment is not currently under maintenance.")
+                    .build();
+        }
+
+        Double maintenanceHours = equipmentTransactionRequest.getTotalHoursInput();
+        if (maintenanceHours == null) {
+            maintenanceHours = equipment.getTotalHours();
+        }
+
+        if (maintenanceHours == null) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input is required to complete maintenance.")
+                    .build();
+        }
+
+        if (maintenanceHours < 0) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input must be non-negative.")
+                    .build();
+        }
+
+        double currentHours = equipment.getTotalHours() == null ? 0.0 : equipment.getTotalHours();
+        if (maintenanceHours < currentHours) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input cannot be less than the equipment's current recorded hours (" + currentHours + ").")
+                    .build();
+        }
+
+        double previousMaintenanceHours = equipment.getLastMaintenanceHours() == null ? 0.0 : equipment.getLastMaintenanceHours();
+        if (maintenanceHours < previousMaintenanceHours) {
+            return Response.builder()
+                    .status(400)
+                    .message("Total hours input cannot be less than the last recorded maintenance hours (" + previousMaintenanceHours + ").")
+                    .build();
+        }
+
+        equipment.setTotalHours(maintenanceHours);
+        equipment.setLastMaintenanceHours(maintenanceHours);
+        equipment.setEquipmentStatus(EquipmentStatus.AVAILABLE);
+        equipment.setLastCheckOutTime(null);
+        equipmentRepository.save(equipment);
+
+        User user = userService.getCurrentLoggedInUser();
+        String maintenancePerformed = equipmentTransactionRequest.getMaintenancePerformed();
+        if (maintenancePerformed == null || maintenancePerformed.trim().isEmpty()) {
+            maintenancePerformed = "General maintenance";
+        } else {
+            maintenancePerformed = maintenancePerformed.trim();
+        }
+
+        MaintenanceRecord maintenanceRecord = MaintenanceRecord.builder()
+                .equipment(equipment)
+                .user(user)
+                .maintenancePerformed(maintenancePerformed)
+                .note(equipmentTransactionRequest.getNote())
+                .totalHoursAtMaintenance(maintenanceHours)
+                .build();
+        maintenanceRecordRepository.save(maintenanceRecord);
+
+        EquipmentTransaction equipmentTransaction = EquipmentTransaction.builder()
+                .equipment(equipment)
+                .user(user)
+                .equipmentTransactionType(EquipmentTransactionType.MAINTENANCE)
+                .timestamp(LocalDateTime.now())
+                .totalHoursInput(maintenanceHours)
+                .note("Maintenance complete: " + maintenancePerformed)
+                .build();
+        equipmentTransactionRepository.save(equipmentTransaction);
+
+        return Response.builder()
+                .status(200)
+                .message("Maintenance completed successfully.")
+                .build();
     }
 
 }

@@ -41,6 +41,9 @@ public class Equipment {
 
     //private Double lastMaintenanceHours; // hours recorded when maintenance last completed
 
+    @Column(name = "last_maintenance_hours")
+    private Double lastMaintenanceHours;
+
     private String description;
 
     //private user LastCheckedOutBy;???
@@ -59,8 +62,16 @@ public class Equipment {
      */
     @Transient
     public boolean isMaintenanceDue() {
-        if (totalHours == null || maintenanceIntervalHours == null) return false;
-        return totalHours >= maintenanceIntervalHours;
+        if (totalHours == null) return false;
+        Double nextDueHours = getNextMaintenanceDueHours();
+        return nextDueHours != null && totalHours >= nextDueHours;
+    }
+
+    @Transient
+    public Double getNextMaintenanceDueHours() {
+        if (maintenanceIntervalHours == null) return null;
+        double lastMaintenance = lastMaintenanceHours == null ? 0.0 : lastMaintenanceHours;
+        return lastMaintenance + maintenanceIntervalHours;
     }
 
 
