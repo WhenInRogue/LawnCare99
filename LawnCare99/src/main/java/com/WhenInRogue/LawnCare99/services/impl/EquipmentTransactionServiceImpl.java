@@ -2,6 +2,7 @@ package com.WhenInRogue.LawnCare99.services.impl;
 
 import com.WhenInRogue.LawnCare99.dtos.EquipmentTransactionDTO;
 import com.WhenInRogue.LawnCare99.dtos.EquipmentTransactionRequest;
+import com.WhenInRogue.LawnCare99.dtos.MaintenanceRecordDTO;
 import com.WhenInRogue.LawnCare99.dtos.Response;
 import com.WhenInRogue.LawnCare99.enums.EquipmentStatus;
 import com.WhenInRogue.LawnCare99.enums.EquipmentTransactionType;
@@ -359,6 +360,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                 .totalHoursAtMaintenance(maintenanceHours)
                 .build();
         maintenanceRecordRepository.save(maintenanceRecord);
+        MaintenanceRecordDTO maintenanceRecordDTO = modelMapper.map(maintenanceRecord, MaintenanceRecordDTO.class);
 
         EquipmentTransaction equipmentTransaction = EquipmentTransaction.builder()
                 .equipment(equipment)
@@ -373,6 +375,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
         return Response.builder()
                 .status(200)
                 .message("Maintenance completed successfully.")
+                .maintenanceRecord(maintenanceRecordDTO)
                 .build();
     }
 

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, Long> {
+
+    java.util.List<MaintenanceRecord> findByEquipment_EquipmentIdOrderByPerformedAtDesc(Long equipmentId);
 }
