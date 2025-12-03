@@ -25,16 +25,6 @@ public class EquipmentTransactionController {
         return ResponseEntity.ok(equipmentTransactionService.checkOutEquipment(equipmentTransactionRequest));
     }
 
-    @PostMapping("/maintenance/start")
-    public ResponseEntity<Response> startMaintenance(@RequestBody @Valid EquipmentTransactionRequest equipmentTransactionRequest) {
-        return ResponseEntity.ok(equipmentTransactionService.startMaintenance(equipmentTransactionRequest));
-    }
-
-    @PostMapping("/maintenance/complete")
-    public ResponseEntity<Response> completeMaintenance(@RequestBody @Valid EquipmentTransactionRequest equipmentTransactionRequest) {
-        return ResponseEntity.ok(equipmentTransactionService.endMaintenance(equipmentTransactionRequest));
-    }
-
     @GetMapping("/all")
     public ResponseEntity<Response> getAllEquipmentTransactions(
             @RequestParam(defaultValue = "0") int page,
