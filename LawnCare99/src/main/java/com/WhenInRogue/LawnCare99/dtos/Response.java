@@ -44,9 +44,6 @@ public class Response {
     private MaintenanceRecordDTO maintenanceRecord;
     private List<MaintenanceRecordDTO> maintenanceRecords;
 
-    private MaintenanceTransactionDTO maintenanceTransaction;
-    private List<MaintenanceTransactionDTO> maintenanceTransactions;
-
     private final LocalDateTime timestamp = LocalDateTime.now();
 
 

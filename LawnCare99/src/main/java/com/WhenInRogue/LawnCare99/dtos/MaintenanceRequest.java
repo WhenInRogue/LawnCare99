@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MaintenanceTransactionRequest {
+public class MaintenanceRequest {
 
     @Positive(message = "equipment id is required")
     private Long equipmentId;
