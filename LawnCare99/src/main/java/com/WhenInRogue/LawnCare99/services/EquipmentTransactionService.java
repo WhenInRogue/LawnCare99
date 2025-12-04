@@ -15,7 +15,4 @@ public interface EquipmentTransactionService {
 
     Response getAllEquipmentTransactionsByMonthAndYear(int month, int year);
 
-    Response startMaintenance(EquipmentTransactionRequest equipmentTransactionRequest);
-
-    Response endMaintenance(EquipmentTransactionRequest equipmentTransactionRequest);
 }

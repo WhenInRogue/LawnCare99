@@ -39,7 +39,8 @@ public class Equipment {
     @Min(value = 0, message = "maintenance interval cannot be negative")
     private Double maintenanceIntervalHours; // e.g., 500 hours
 
-    //private Double lastMaintenanceHours; // hours recorded when maintenance last completed
+    //hours recorded when maintenance was last completed
+    private Double lastMaintenanceHours;
 
     private String description;
 
@@ -59,8 +60,16 @@ public class Equipment {
      */
     @Transient
     public boolean isMaintenanceDue() {
-        if (totalHours == null || maintenanceIntervalHours == null) return false;
-        return totalHours >= maintenanceIntervalHours;
+        if (totalHours == null) return false;
+        Double nextDueHours = getNextMaintenanceDueHours();
+        return nextDueHours != null && totalHours >= nextDueHours;
+    }
+
+    @Transient
+    public Double getNextMaintenanceDueHours() {
+        if (maintenanceIntervalHours == null) return null;
+        double lastMaintenance = lastMaintenanceHours == null ? 0.0 : lastMaintenanceHours;
+        return lastMaintenance + maintenanceIntervalHours;
     }
 
 
@@ -73,6 +82,7 @@ public class Equipment {
                 ", equipmentStatus=" + equipmentStatus +
                 ", lastCheckOutTime=" + lastCheckOutTime +
                 ", maintenanceIntervalHours=" + maintenanceIntervalHours +
+                ", lastMaintenanceHours=" + lastMaintenanceHours +
                 ", description='" + description + '\'' +
                 '}';
     }

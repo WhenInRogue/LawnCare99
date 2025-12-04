@@ -25,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -234,14 +233,5 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
                 .build();
     }
 
-    @Override
-    public Response startMaintenance(EquipmentTransactionRequest equipmentTransactionRequest) {
-        return null;
-    }
-
-    @Override
-    public Response endMaintenance(EquipmentTransactionRequest equipmentTransactionRequest) {
-        return null;
-    }
 
 }

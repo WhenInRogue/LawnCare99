@@ -24,6 +24,9 @@ public class MaintenanceRecord {
 
     private String note;
 
+    private Double totalHoursAtMaintenance;
+
+    @Builder.Default
     private LocalDateTime performedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,4 +36,15 @@ public class MaintenanceRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performed_by", nullable = false)
     private User user;
+
+    @Override
+    public String toString() {
+        return "MaintenanceRecord{" +
+                "maintenanceRecordId=" + maintenanceRecordId +
+                ", maintenancePerformed='" + maintenancePerformed + '\'' +
+                ", note='" + note + '\'' +
+                ", totalHoursAtMaintenance=" + totalHoursAtMaintenance +
+                ", performedAt=" + performedAt +
+                '}';
+    }
 }

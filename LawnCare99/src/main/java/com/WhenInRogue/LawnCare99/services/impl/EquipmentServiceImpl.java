@@ -80,8 +80,9 @@ public class EquipmentServiceImpl implements EquipmentService {
         if (equipmentDTO.getTotalHours() != null) existingEquipment.setTotalHours(equipmentDTO.getTotalHours());
         if (equipmentDTO.getEquipmentStatus() != null) existingEquipment.setEquipmentStatus(equipmentDTO.getEquipmentStatus());
         if (equipmentDTO.getLastCheckOutTime() != null) existingEquipment.setLastCheckOutTime(equipmentDTO.getLastCheckOutTime());
-        if (equipmentDTO.getEquipmentId() != null) existingEquipment.setMaintenanceIntervalHours(equipmentDTO.getMaintenanceIntervalHours());
+        if (equipmentDTO.getMaintenanceIntervalHours() != null) existingEquipment.setMaintenanceIntervalHours(equipmentDTO.getMaintenanceIntervalHours());
         if  (equipmentDTO.getDescription() != null) existingEquipment.setDescription(equipmentDTO.getDescription());
+        if (equipmentDTO.getLastMaintenanceHours() != null) existingEquipment.setLastMaintenanceHours(equipmentDTO.getLastMaintenanceHours());
 
         equipmentRepository.save(existingEquipment);
 
