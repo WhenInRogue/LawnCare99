@@ -28,12 +28,12 @@ public class MaintenanceRecordController {
         return ResponseEntity.ok(maintenanceRecordService.endMaintenance(maintenanceRequest));
     }
 
-    @GetMapping("/records")
+    @GetMapping("/all")
     public ResponseEntity<Response> getAllMaintenanceRecords() {
         return ResponseEntity.ok(maintenanceRecordService.getAllMaintenanceRecords());
     }
 
-    @GetMapping("/records/equipment/{equipmentId}")
+    @GetMapping("/equipment/{equipmentId}")
     public ResponseEntity<Response> getMaintenanceRecordsByEquipment(@PathVariable Long equipmentId) {
         return ResponseEntity.ok(maintenanceRecordService.getMaintenanceRecordsByEquipment(equipmentId));
     }
