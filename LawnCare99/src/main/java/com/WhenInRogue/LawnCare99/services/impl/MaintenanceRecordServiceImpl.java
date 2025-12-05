@@ -164,40 +164,40 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         List<MaintenanceRecord> records = maintenanceRecordRepository
                 .findByEquipment_EquipmentIdOrderByPerformedAtDesc(equipment.getEquipmentId());
 
-        List<MaintenanceRecordDTO> recordDTOs = modelMapper.map(
+        List<MaintenanceRecordDTO> maintenanceRecordDTOS = modelMapper.map(
                 records, new TypeToken<List<MaintenanceRecordDTO>>() {
                 }.getType());
 
-        recordDTOs.forEach(recordDTO -> {
-            if (recordDTO.getEquipment() != null) {
-                recordDTO.getEquipment().setMaintenanceDue(null);
+        maintenanceRecordDTOS.forEach(maintenanceRecordDTO -> {
+            if (maintenanceRecordDTO.getEquipment() != null) {
+                maintenanceRecordDTO.getEquipment().setMaintenanceDue(null);
             }
         });
 
         return Response.builder()
                 .status(200)
                 .message("success")
-                .maintenanceRecords(recordDTOs)
+                .maintenanceRecords(maintenanceRecordDTOS)
                 .build();
     }
 
     @Override
     public Response getAllMaintenanceRecords() {
         List<MaintenanceRecord> records = maintenanceRecordRepository.findAll();
-        List<MaintenanceRecordDTO> recordDTOs = modelMapper.map(
+        List<MaintenanceRecordDTO> maintenanceRecordDTOS = modelMapper.map(
                 records, new TypeToken<List<MaintenanceRecordDTO>>() {
                 }.getType());
 
-        recordDTOs.forEach(recordDTO -> {
-            if (recordDTO.getEquipment() != null) {
-                recordDTO.getEquipment().setMaintenanceDue(null);
+        maintenanceRecordDTOS.forEach(maintenanceRecordDTO -> {
+            if (maintenanceRecordDTO.getEquipment() != null) {
+                maintenanceRecordDTO.getEquipment().setMaintenanceDue(null);
             }
         });
 
         return Response.builder()
                 .status(200)
                 .message("success")
-                .maintenanceRecords(recordDTOs)
+                .maintenanceRecords(maintenanceRecordDTOS)
                 .build();
     }
 

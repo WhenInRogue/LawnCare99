@@ -25,4 +25,6 @@ public interface UserService {
 
     Response getUserEquipmentTransactions(Long id);
 
+    Response getUserMaintenanceRecords(Long id);
+
 }

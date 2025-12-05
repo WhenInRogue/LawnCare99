@@ -36,4 +36,6 @@ public class UserDTO {
     private List<SupplyTransactionDTO> supplyTransactions;
 
     private List<EquipmentTransactionDTO> equipmentTransactions;
+
+    private List<MaintenanceRecordDTO> maintenanceRecords;
 }

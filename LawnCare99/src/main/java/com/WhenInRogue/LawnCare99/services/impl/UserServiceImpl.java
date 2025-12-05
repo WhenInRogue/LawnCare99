@@ -86,6 +86,7 @@ public class UserServiceImpl implements UserService {
 
         users.forEach(user -> user.setSupplyTransactions(null));
         users.forEach(user -> user.setEquipmentTransactions(null));
+        users.forEach(user -> user.setMaintenanceRecords(null));
 
         List<UserDTO> userDTOS = modelMapper.map(users, new TypeToken<List<UserDTO>>() {
         }.getType());
@@ -107,6 +108,7 @@ public class UserServiceImpl implements UserService {
 
         user.setSupplyTransactions(null);
         user.setEquipmentTransactions(null);
+        user.setMaintenanceRecords(null);
 
         return user;
     }
@@ -120,6 +122,7 @@ public class UserServiceImpl implements UserService {
 
         userDTO.setSupplyTransactions(null);
         userDTO.setEquipmentTransactions(null);
+        userDTO.setMaintenanceRecords(null);
 
         return Response.builder()
                 .status(200)
@@ -197,5 +200,22 @@ public class UserServiceImpl implements UserService {
                 .user(userDTO)
                 .build();
 
+    }
+
+    @Override
+    public Response getUserMaintenanceRecords(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        userDTO.getMaintenanceRecords().forEach(maintenanceRecordDTO -> {
+            maintenanceRecordDTO.setUser(null);
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .user(userDTO)
+                .build();
     }
 }
