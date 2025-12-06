@@ -14,6 +14,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -41,9 +42,16 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public Response getAllEquipment() {
+    public Response getAllEquipment(EquipmentStatus equipmentStatus) {
 
-        List<Equipment> equipments = equipmentRepository.findAll(Sort.by(Sort.Direction.DESC, "equipmentId"));
+        List<Equipment> equipments;
+
+        if (equipmentStatus == null) {
+            equipments = equipmentRepository.findAll(Sort.by(Sort.Direction.DESC, "equipmentId"));
+        } else {
+            equipments = equipmentRepository.findByEquipmentStatus(equipmentStatus);
+            equipments.sort(Comparator.comparing(Equipment::getEquipmentId).reversed());
+        }
 
         List<EquipmentDTO> EquipmentDTOList = modelMapper.map(equipments, new TypeToken<List<EquipmentDTO>>() {
         }.getType());
