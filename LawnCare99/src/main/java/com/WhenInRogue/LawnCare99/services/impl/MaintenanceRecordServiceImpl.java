@@ -172,6 +172,11 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             if (maintenanceRecordDTO.getEquipment() != null) {
                 maintenanceRecordDTO.getEquipment().setMaintenanceDue(null);
             }
+            if (maintenanceRecordDTO.getUser() != null) {
+                maintenanceRecordDTO.getUser().setMaintenanceRecords(null);
+                maintenanceRecordDTO.getUser().setEquipmentTransactions(null);
+                maintenanceRecordDTO.getUser().setSupplyTransactions(null);
+            }
         });
 
         return Response.builder()
@@ -191,6 +196,11 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         maintenanceRecordDTOS.forEach(maintenanceRecordDTO -> {
             if (maintenanceRecordDTO.getEquipment() != null) {
                 maintenanceRecordDTO.getEquipment().setMaintenanceDue(null);
+            }
+            if (maintenanceRecordDTO.getUser() != null) {
+                maintenanceRecordDTO.getUser().setMaintenanceRecords(null);
+                maintenanceRecordDTO.getUser().setEquipmentTransactions(null);
+                maintenanceRecordDTO.getUser().setSupplyTransactions(null);
             }
         });
 
