@@ -188,7 +188,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
     @Override
     public Response getAllMaintenanceRecords() {
-        List<MaintenanceRecord> records = maintenanceRecordRepository.findAll();
+        List<MaintenanceRecord> records = maintenanceRecordRepository.findAllByOrderByPerformedAtDesc();
         List<MaintenanceRecordDTO> maintenanceRecordDTOS = modelMapper.map(
                 records, new TypeToken<List<MaintenanceRecordDTO>>() {
                 }.getType());
