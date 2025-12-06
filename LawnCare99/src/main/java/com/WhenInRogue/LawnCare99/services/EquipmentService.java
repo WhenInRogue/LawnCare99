@@ -2,6 +2,7 @@ package com.WhenInRogue.LawnCare99.services;
 
 import com.WhenInRogue.LawnCare99.dtos.EquipmentDTO;
 import com.WhenInRogue.LawnCare99.dtos.Response;
+import com.WhenInRogue.LawnCare99.enums.EquipmentStatus;
 
 public interface EquipmentService {
 
@@ -9,7 +10,7 @@ public interface EquipmentService {
     Response createEquipment(EquipmentDTO equipmentDTO);
 
     //Read
-    Response getAllEquipment();
+    Response getAllEquipment(EquipmentStatus equipmentStatus);
 
     Response getEquipmentById(Long id);
 

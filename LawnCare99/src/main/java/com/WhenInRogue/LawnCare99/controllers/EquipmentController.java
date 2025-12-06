@@ -3,6 +3,7 @@ package com.WhenInRogue.LawnCare99.controllers;
 import com.WhenInRogue.LawnCare99.dtos.EquipmentDTO;
 import com.WhenInRogue.LawnCare99.dtos.Response;
 import com.WhenInRogue.LawnCare99.dtos.SupplyDTO;
+import com.WhenInRogue.LawnCare99.enums.EquipmentStatus;
 import com.WhenInRogue.LawnCare99.services.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,8 @@ public class EquipmentController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Response> getAllEquipment() {
-        return ResponseEntity.ok(equipmentService.getAllEquipment());
+    public ResponseEntity<Response> getAllEquipment(@RequestParam(value = "equipmentStatus", required = false) EquipmentStatus equipmentStatus) {
+        return ResponseEntity.ok(equipmentService.getAllEquipment(equipmentStatus));
     }
 
     @GetMapping("/{id}")

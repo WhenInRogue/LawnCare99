@@ -30,6 +30,8 @@ public class EquipmentDTO {
 
     private String description;
 
+    private String lastCheckedOutBy;
+
     private Boolean maintenanceDue;
 
     private Double lastMaintenanceHours;

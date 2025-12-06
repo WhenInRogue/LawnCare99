@@ -44,7 +44,7 @@ public class Equipment {
 
     private String description;
 
-    //private user LastCheckedOutBy;???
+    private String lastCheckedOutBy;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenanceRecord> maintenanceRecords;
@@ -84,6 +84,7 @@ public class Equipment {
                 ", maintenanceIntervalHours=" + maintenanceIntervalHours +
                 ", lastMaintenanceHours=" + lastMaintenanceHours +
                 ", description='" + description + '\'' +
+                ", lastCheckedOutBy='" + lastCheckedOutBy + '\'' +
                 '}';
     }
 }
