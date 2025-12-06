@@ -15,7 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(
+        value = {"supplyTransactions", "equipmentTransactions", "maintenanceRecords"},
+        allowSetters = true
+)
 public class UserDTO {
 
     private Long id;
