@@ -25,6 +25,7 @@ public class EquipmentDTO {
     private EquipmentStatus equipmentStatus; //AVAILABLE, IN_USE, MAINTENANCE, RETIRED
 
     private LocalDateTime lastCheckOutTime;
+    private String lastCheckedOutBy;
 
     private Double maintenanceIntervalHours;
 

@@ -35,6 +35,8 @@ public class Equipment {
 
     private LocalDateTime lastCheckOutTime;
 
+    private String lastCheckedOutBy;
+
     //Set the interval at which that equipment requires maintenance
     @Min(value = 0, message = "maintenance interval cannot be negative")
     private Double maintenanceIntervalHours; // e.g., 500 hours

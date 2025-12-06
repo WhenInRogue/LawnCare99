@@ -151,6 +151,7 @@ public class EquipmentTransactionServiceImpl implements EquipmentTransactionServ
         // UPDATE EQUIPMENT ------------------------------
         equipment.setEquipmentStatus(EquipmentStatus.IN_USE);
         equipment.setLastCheckOutTime(LocalDateTime.now());
+        equipment.setLastCheckedOutBy(user.getName());
         equipmentRepository.save(equipment);
 
         // LOG TRANSACTION -------------------------------
