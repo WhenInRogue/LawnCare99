@@ -1,27 +1,35 @@
 package com.WhenInRogue.LawnCare99.services.impl;
 
+import com.WhenInRogue.LawnCare99.dtos.ForgotPasswordRequest;
 import com.WhenInRogue.LawnCare99.dtos.LoginRequest;
 import com.WhenInRogue.LawnCare99.dtos.RegisterRequest;
+import com.WhenInRogue.LawnCare99.dtos.ResetPasswordRequest;
 import com.WhenInRogue.LawnCare99.dtos.Response;
 import com.WhenInRogue.LawnCare99.dtos.UserDTO;
 import com.WhenInRogue.LawnCare99.enums.UserRole;
 import com.WhenInRogue.LawnCare99.exceptions.InvalidCredentialsException;
 import com.WhenInRogue.LawnCare99.exceptions.NotFoundException;
+import com.WhenInRogue.LawnCare99.models.PasswordResetToken;
 import com.WhenInRogue.LawnCare99.models.User;
+import com.WhenInRogue.LawnCare99.repositories.PasswordResetTokenRepository;
 import com.WhenInRogue.LawnCare99.repositories.UserRepository;
 import com.WhenInRogue.LawnCare99.security.JwtUtils;
+import com.WhenInRogue.LawnCare99.services.EmailService;
 import com.WhenInRogue.LawnCare99.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +40,11 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
     private final JwtUtils jwtUtils;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
+
+    @Value("${app.reset.base-url}")
+    private String resetBaseUrl;
 
 
     @Override
@@ -217,5 +230,64 @@ public class UserServiceImpl implements UserService {
                 .message("success")
                 .user(userDTO)
                 .build();
+    }
+
+    @Override
+    public Response requestPasswordReset(ForgotPasswordRequest forgotPasswordRequest) {
+
+        userRepository.findByEmail(forgotPasswordRequest.getEmail()).ifPresent(user -> {
+            passwordResetTokenRepository.deleteAllByUser(user);
+
+            PasswordResetToken token = PasswordResetToken.builder()
+                    .user(user)
+                    .token(UUID.randomUUID().toString())
+                    .expiresAt(LocalDateTime.now().plusMinutes(15))
+                    .build();
+
+            passwordResetTokenRepository.save(token);
+
+            emailService.sendPasswordResetEmail(user.getEmail(), buildResetLink(token.getToken()));
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("If an account exists for that email, a reset link was sent")
+                .build();
+    }
+
+    @Override
+    public Response resetPassword(ResetPasswordRequest resetPasswordRequest) {
+
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(resetPasswordRequest.getToken())
+                .orElseThrow(() -> new NotFoundException("Reset token is invalid"));
+
+        if (passwordResetToken.isExpired()) {
+            throw new InvalidCredentialsException("Reset token has expired");
+        }
+
+        if (passwordResetToken.isUsed()) {
+            throw new InvalidCredentialsException("Reset token has already been used");
+        }
+
+        if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+            throw new InvalidCredentialsException("Passwords do not match");
+        }
+
+        User user = passwordResetToken.getUser();
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+        passwordResetToken.setUsedAt(LocalDateTime.now());
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        return Response.builder()
+                .status(200)
+                .message("Password reset successfully")
+                .build();
+    }
+
+    private String buildResetLink(String token) {
+        String separator = resetBaseUrl.contains("?") ? "&" : "?";
+        return resetBaseUrl + separator + "token=" + token;
     }
 }
