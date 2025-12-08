@@ -28,6 +28,9 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     public Response createSupply(SupplyDTO supplyDTO) {
 
+        //current stock cannot exceed max
+        validateStockDoesNotExceedMaximum(supplyDTO.getCurrentStock(), supplyDTO.getMaximumQuantity());
+
         Supply supplyToSave = modelMapper.map(supplyDTO, Supply.class);
 
         supplyRepository.save(supplyToSave);
@@ -76,10 +79,21 @@ public class SupplyServiceImpl implements SupplyService {
 
         if (supplyDTO.getName() != null) existingSupply.setName(supplyDTO.getName());
         if (supplyDTO.getUnitOfMeasurement() != null) existingSupply.setUnitOfMeasurement(supplyDTO.getUnitOfMeasurement());
-        if (supplyDTO.getCurrentStock() != null) existingSupply.setCurrentStock(supplyDTO.getCurrentStock());
         if (supplyDTO.getReorderLevel() != null) existingSupply.setReorderLevel(supplyDTO.getReorderLevel());
-        if (supplyDTO.getMaximumQuantity() != null) existingSupply.setMaximumQuantity(supplyDTO.getMaximumQuantity());
         if (supplyDTO.getDescription() != null) existingSupply.setDescription(supplyDTO.getDescription());
+
+        //supply currentstock cannot exceed max
+        Integer updatedCurrentStock = supplyDTO.getCurrentStock() != null
+                ? supplyDTO.getCurrentStock()
+                : existingSupply.getCurrentStock();
+        Integer updatedMaximumQuantity = supplyDTO.getMaximumQuantity() != null
+                ? supplyDTO.getMaximumQuantity()
+                : existingSupply.getMaximumQuantity();
+
+        validateStockDoesNotExceedMaximum(updatedCurrentStock, updatedMaximumQuantity);
+
+        existingSupply.setCurrentStock(updatedCurrentStock);
+        existingSupply.setMaximumQuantity(updatedMaximumQuantity);
 
         supplyRepository.save(existingSupply);
 
@@ -101,5 +115,17 @@ public class SupplyServiceImpl implements SupplyService {
                 .status(200)
                 .message("Supply deleted successfully")
                 .build();
+    }
+
+    private void validateStockDoesNotExceedMaximum(Integer currentStock, Integer maximumQuantity) {
+        if (maximumQuantity == null) {
+            return;
+        }
+
+        int normalizedStock = currentStock == null ? 0 : currentStock;
+
+        if (normalizedStock > maximumQuantity) {
+            throw new IllegalArgumentException("Current stock cannot exceed maximum quantity");
+        }
     }
 }
