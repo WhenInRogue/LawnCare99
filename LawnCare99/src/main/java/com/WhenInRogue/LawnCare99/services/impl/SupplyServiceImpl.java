@@ -31,6 +31,9 @@ public class SupplyServiceImpl implements SupplyService {
         //current stock cannot exceed max
         validateStockDoesNotExceedMaximum(supplyDTO.getCurrentStock(), supplyDTO.getMaximumQuantity());
 
+        //reorder level must be <= maximum quantity (when maximum is provided)
+        validateReorderLevelDoesNotExceedMaximum(supplyDTO.getReorderLevel(), supplyDTO.getMaximumQuantity());
+
         Supply supplyToSave = modelMapper.map(supplyDTO, Supply.class);
 
         supplyRepository.save(supplyToSave);
@@ -79,7 +82,6 @@ public class SupplyServiceImpl implements SupplyService {
 
         if (supplyDTO.getName() != null) existingSupply.setName(supplyDTO.getName());
         if (supplyDTO.getUnitOfMeasurement() != null) existingSupply.setUnitOfMeasurement(supplyDTO.getUnitOfMeasurement());
-        if (supplyDTO.getReorderLevel() != null) existingSupply.setReorderLevel(supplyDTO.getReorderLevel());
         if (supplyDTO.getDescription() != null) existingSupply.setDescription(supplyDTO.getDescription());
 
         //supply currentstock cannot exceed max
@@ -90,10 +92,19 @@ public class SupplyServiceImpl implements SupplyService {
                 ? supplyDTO.getMaximumQuantity()
                 : existingSupply.getMaximumQuantity();
 
+        //reorder level must be <= maximum quantity (use updated values)
+        Integer updatedReorderLevel = supplyDTO.getReorderLevel() != null
+                ? supplyDTO.getReorderLevel()
+                : existingSupply.getReorderLevel();
+
+        // validate against updated values
+        validateReorderLevelDoesNotExceedMaximum(updatedReorderLevel, updatedMaximumQuantity);
         validateStockDoesNotExceedMaximum(updatedCurrentStock, updatedMaximumQuantity);
 
+        // apply changes after validation
         existingSupply.setCurrentStock(updatedCurrentStock);
         existingSupply.setMaximumQuantity(updatedMaximumQuantity);
+        existingSupply.setReorderLevel(updatedReorderLevel);
 
         supplyRepository.save(existingSupply);
 
@@ -126,6 +137,16 @@ public class SupplyServiceImpl implements SupplyService {
 
         if (normalizedStock > maximumQuantity) {
             throw new IllegalArgumentException("Current stock cannot exceed maximum quantity");
+        }
+    }
+
+    private void validateReorderLevelDoesNotExceedMaximum(Integer reorderLevel, Integer maximumQuantity) {
+        if (reorderLevel == null || maximumQuantity == null) {
+            return;
+        }
+
+        if (reorderLevel > maximumQuantity) {
+            throw new IllegalArgumentException("Reorder level cannot exceed maximum quantity");
         }
     }
 }
